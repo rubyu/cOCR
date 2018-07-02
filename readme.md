@@ -1,5 +1,7 @@
 
-cOCR - Cloud OCR utility tool. 
+## cOCR
+
+Cloud OCR utility tool. 
 
 The minimal required options are `-d` and `-k`, which means the target directory and your Google API key.
 
@@ -10,7 +12,7 @@ cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY"
 ### Mode
 #### FileSystem Watcher Mode
 
-Normally, **cOCR** watchs specified directory by `-d` or `--dir` option, and if it find a new image file, it will process the file immediately.
+Normally, **cOCR** watchs specified directory by `-d` or `--dir` option, and if it finds a new image file, it will process the file immediately.
 
 #### Bulk Converter Mode
 

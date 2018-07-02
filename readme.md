@@ -1,7 +1,5 @@
 
-## cOCR
-
-Cloud OCR utility tool. 
+## cOCR - Cloud OCR utility tool. 
 
 The minimal required options are `-d` and `-k`, which means the target directory and your Google API key.
 

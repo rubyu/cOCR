@@ -1,5 +1,5 @@
 
-function appendDescriptionText(json_node, text) {
+function appendDescriptionText(jsonNode, text) {
     var description = document.createElement("div");
     description.id = "description";
     var node = document.createElement("span");
@@ -7,70 +7,110 @@ function appendDescriptionText(json_node, text) {
     // it should be replaced by `<br>` here for using as a html string.
     node.innerHTML = text.replace(/\n/g, "<br>");
     description.appendChild(node);
-    json_node.parentNode.insertBefore(description, json_node);
+    jsonNode.parentNode.insertBefore(description, jsonNode);
 }
 
-function appendOverlayLayer(image_node) {
+function prepareOverlayLayer(imageNode) {
     var overlay = document.createElement("div"); 
     overlay.id = "overlay";
-    var img = image_node.querySelector("img");
-    image_node.parentNode.insertBefore(overlay, image_node);
+    var img = imageNode.querySelector("img");
+    imageNode.parentNode.insertBefore(overlay, imageNode);
     overlay.appendChild(img.cloneNode());
+    return overlay;
 }
 
-function appendOverlayText(x, y, w, h, text) {
-    var container = document.createElement("div");
-    container.className = "container";
-    container.style.left = x;
-    container.style.top = y;
-    container.style.width = container.style.min_width = container.style.max_width = w;
-    container.style.height = container.style.min_height = container.style.max_height = h;
+function appendLayer(parentNode, className, rect) {
+    var layer = document.createElement("div"); 
+    layer.className = className;
+    layer.style.left = rect.x;
+    layer.style.top = rect.y;
+    layer.style.width = layer.style.minWidth = layer.style.maxWidth = rect.w;
+    layer.style.height = layer.style.minHeight = layer.style.maxHeight = rect.h;
+    parentNode.appendChild(layer);
+    return layer;
+}
+
+function appendOverlayText(overlayNode, rect, text) {
+	var container = appendLayer(overlayNode, "container", rect);
     var node = document.createElement("span");
     node.textContent = text;
     container.appendChild(node);
-    overlay.appendChild(container);
+}
+
+function verticesToRect(v) {
+	var r = {};
+	r.x = Math.min(v[0].x, v[3].x);
+    r.y = Math.min(v[0].y, v[1].y);
+    r.w = Math.max(v[1].x, v[2].x) - r.x;
+    r.h = Math.max(v[2].y, v[3].y) - r.y;
+    return r;
+}
+
+// Calculate relative position and size from which of absolute.
+function relativize(iw, ih, r) {
+	var rr = {};
+    rr.x = (r.x / iw * 100) + "%";
+    rr.y = (r.y / ih * 100) + "%";
+    rr.w = (r.w / iw * 100) + "%";
+    rr.h = (r.h / ih * 100) + "%";
+    return rr;
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	var image_node = document.querySelector("#image");
-	var json_node = document.querySelector("#json");
+	var imageNode = document.querySelector("#image");
+	var jsonNode = document.querySelector("#json");
 	
-    var json_text = json_node.textContent;
-    var json = JSON.parse(json_text);
+    var jsonText = jsonNode.textContent;
+    var json = JSON.parse(jsonText);
     
-    var description_text = json.responses[0].textAnnotations[0].description;
-    appendDescriptionText(json_node, description_text);
+    var descriptionText = json.responses[0].textAnnotations[0].description;
+    appendDescriptionText(jsonNode, descriptionText);
     
     // Prepare overlay layer for OCR result overlay feature.
-    appendOverlayLayer(image_node);
+    var overlayNode = prepareOverlayLayer(imageNode);
     
     // The real size of original image which applied for OCR.
-    var image = image_node.querySelector("img");
+    var image = imageNode.querySelector("img");
     var iw = image.naturalWidth;
     var ih = image.naturalHeight;
     
     var annotation = json.responses[0].fullTextAnnotation;
 	annotation.pages.forEach(function(page) {
 		page.blocks.forEach(function(block) {
+			var r = verticesToRect(block.boundingBox.vertices);
+	        var rr = relativize(iw, ih, r);
+	        var blockNode = appendLayer(overlayNode, "block", rr);
 			block.paragraphs.forEach(function(paragraph) {
+				var r = verticesToRect(paragraph.boundingBox.vertices);
+		        var rr = relativize(iw, ih, r);
+		        var paragraphNode = appendLayer(overlayNode, "paragraph", rr);
 				paragraph.words.forEach(function(word) {
+					var r = verticesToRect(word.boundingBox.vertices);
+			        var rr = relativize(iw, ih, r);
+			        var wordNode = appendLayer(overlayNode, "word", rr);
 					word.symbols.forEach(function(symbol) {
-    					// Calculate relative position and size from which of absolute.
-				        var v = symbol.boundingBox.vertices;
-				        var x = Math.min(v[0].x, v[3].x);
-				        var y = Math.min(v[0].y, v[1].y);
-				        var w = Math.max(v[1].x, v[2].x) - x;
-				        var h = Math.max(v[2].y, v[3].y) - y;
-				        var rx = (x / iw * 100) + "%";
-				        var ry = (y / ih * 100) + "%";
-				        var rw = (w / iw * 100) + "%";
-				        var rh = (h / ih * 100) + "%";
-				        // If symbol has line
+				        var r = verticesToRect(symbol.boundingBox.vertices);
+				        var rr = relativize(iw, ih, r);
 				        var text = symbol.text;
 				        if ("property" in symbol && "detectedBreak" in symbol.property) {
-				        	text = text + " ";
+				        	switch (symbol.property.detectedBreak.type) {
+				        		case "LINE_BREAK":
+				        			text = text + "\r\n";
+				        			break;
+				        		/*
+				        		case "SPACE":
+				       			case "SURE_SPACE":
+				        		case "EOL_SURE_SPACE":
+				        		case "HYPHEN":
+				        		case "UNKNOWN":
+				        		 */
+				        		default:
+				        			text = text + " ";
+				        			break;
+				        	}
+				        	console.log(symbol.property.detectedBreak);
 				    	}
-				        appendOverlayText(rx, ry, rw, rh, text);
+				        appendOverlayText(overlayNode, rr, text);
 					});
 				});
 			});
@@ -81,17 +121,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	// Old format.
     var annotations = json.responses[0].textAnnotations.slice(1);
     annotations.forEach(function(annotation) {
-    	// Calculate relative position and size from which of absolute.
-        var v = annotation.boundingPoly.vertices;
-        var x = Math.min(v[0].x, v[3].x);
-        var y = Math.min(v[0].y, v[1].y);
-        var w = Math.max(v[1].x, v[2].x) - x;
-        var h = Math.max(v[2].y, v[3].y) - y;
-        var rx = (x / iw * 100) + "%";
-        var ry = (y / ih * 100) + "%";
-        var rw = (w / iw * 100) + "%";
-        var rh = (h / ih * 100) + "%";
-        appendOverlayText(rx, ry, rw, rh, annotation.description);
+        var r = verticesToRect(annotation.boundingPoly.vertices);
+        var rr = relativize(iw, ih, r);
+        appendOverlayText(rr.x, rr.y, rr.w, rr.h, annotation.description);
     });
     */
 });

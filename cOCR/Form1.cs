@@ -70,8 +70,11 @@ namespace cOCR
                 {
                     if (args.ChangeType == WatcherChangeTypes.Created)
                     {
-                        Console.WriteLine($"Created: {args.FullPath}");
-                        await Process(opt, args.FullPath);
+                        if (IsImageExtension(args.FullPath))
+                        {
+                            Console.WriteLine($"Created: {args.FullPath}");
+                            await Process(opt, args.FullPath);
+                        }
                     }
                 };
                 fsWatcher.EnableRaisingEvents = true;
@@ -112,12 +115,15 @@ namespace cOCR
             }
         }
 
-        private bool IsImageExtension(string ext)
-            => ext == ".bmp" ||
-               ext == ".gif" ||
-               ext == ".png" ||
-               ext == ".jpeg" || ext == ".jpg" ||
-               ext == ".tiff" || ext == ".tif";
+        private bool IsImageExtension(string file)
+        {
+            var ext = Path.GetExtension(file);
+            return ext == ".bmp" ||
+                   ext == ".gif" ||
+                   ext == ".png" ||
+                   ext == ".jpeg" || ext == ".jpg" ||
+                   ext == ".tiff" || ext == ".tif";
+        }
 
         private void BulkProcess(CLIOption.Result opt)
         {
@@ -125,17 +131,20 @@ namespace cOCR
             var index = 0;
             foreach (var file in files)
             {
-                var fullPath = Path.GetFullPath(file);
-                Console.WriteLine($"[{index}] {fullPath}");
-                var task = Process(opt, fullPath);
-                task.Wait();
-                index += 1;
+                if (IsImageExtension(file))
+                {
+                    var fullPath = Path.GetFullPath(file);
+                    Console.WriteLine($"[{index}] {fullPath}");
+                    var task = Process(opt, fullPath);
+                    task.Wait();
+                    index += 1;
+                }
             }
         }
 
         async public Task<bool> Process(CLIOption.Result opt, string imageFile)
         {
-            if (!IsImageExtension(Path.GetExtension(imageFile))) return true;
+            if (!IsImageExtension(imageFile)) return true;
 
             var jsonFile = imageFile + ".json";
             var htmlFile = imageFile + ".html";
@@ -292,7 +301,7 @@ namespace cOCR
 
         private void RegisterContextMenuItems3()
         {
-            var item = new ToolStripMenuItem($"EntryPoint: {cliOption.Directory}");
+            var item = new ToolStripMenuItem($"EntryPoint: {cliOption.EntryPoint}");
             contextMenuStrip1.Items.Add(item);
         }
 

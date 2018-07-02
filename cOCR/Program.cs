@@ -22,7 +22,7 @@ namespace cOCR
                 WinAPI.Console.Console.AttachConsole();
 #if DEBUG
                 string[] args = { "-d", @"..\..\test", "-k", "dummy" };
-                var cliOption = CLIOption.Parse(args);
+                var opt = CLIOption.Parse(args);
 #else
                 var opt = CLIOption.ParseEnvironmentCommandLine();
 #endif

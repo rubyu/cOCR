@@ -38,10 +38,10 @@ namespace cOCR
         
         public Form1(CLIOption.Result opt)
         {
-            InitializeComponent();
-
             this.cliOption = opt;
 
+            InitializeComponent();
+            
             if (opt.Bulk)
             {
                 Console.WriteLine("Mode: BulkConverter");

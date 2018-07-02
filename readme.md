@@ -7,7 +7,7 @@ The minimal required options are `-d` and `-k`, which means the target directory
 cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY"
 ```
 
-Or, the option can be given by the long name.
+Or, the options can be specified by the long names.
 
 ```bat
 cocr --dir "PATH_TO_TARGET_DIRECTORY" --key "YOUR_GOOGLE_API_KEY"
@@ -16,7 +16,7 @@ cocr --dir "PATH_TO_TARGET_DIRECTORY" --key "YOUR_GOOGLE_API_KEY"
 ### Mode
 #### FileSystem Watcher Mode
 
-Normally, **cOCR** watchs specified directory by `-d` or `--dir` option, and if it finds a new image file, it will process the file immediately.
+Normally, **cOCR** watchs specified directory given by `-d` or `--dir` option, and if it finds a new image file, it will process the file immediately.
 
 #### Bulk Converter Mode
 

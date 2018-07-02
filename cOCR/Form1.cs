@@ -156,29 +156,10 @@ namespace cOCR
             {
                 if (File.Exists(htmlFile)) return true;
 
-                var json = File.ReadAllText(jsonFile);
-                Json2Html(imageFile, jsonFile, htmlFile, errorFile, json);
+                var jsonText = File.ReadAllText(jsonFile);
+                Json2Html(imageFile, jsonFile, htmlFile, cssFile, jsFile, errorFile, jsonText);
 
-                if (File.Exists(htmlFile))
-                {
-                    try
-                    {
-                        if (!File.Exists(cssFile))
-                        {
-                            File.WriteAllText(cssFile, Properties.Resources.DefaultCSS);
-                        }
-                    }
-                    catch { }
-                    try
-                    {
-                        if (!File.Exists(jsFile))
-                        {
-                            File.WriteAllText(jsFile, Properties.Resources.DefaultJS);
-                        }
-                    }
-                    catch { }
-                    return true;
-                }
+                if (File.Exists(htmlFile)) return true;
                 
                 try
                 {
@@ -189,7 +170,7 @@ namespace cOCR
 
             try
             {
-                var r = await Image2Html(opt, imageFile, jsonFile, htmlFile, errorFile);
+                var r = await Image2Html(opt, imageFile, jsonFile, htmlFile, cssFile, jsFile, errorFile);
                 r.Match(async (x) =>
                 {
                     var d = await x;
@@ -216,6 +197,26 @@ namespace cOCR
                 File.AppendAllText(errorFile, ex.ToString());
             }
             return false;
+        }
+
+        private void PrepareHtmlResources(string cssFile, string jsFile)
+        {
+            try
+            {
+                if (!File.Exists(cssFile))
+                {
+                    File.WriteAllText(cssFile, Properties.Resources.DefaultCSS);
+                }
+            }
+            catch { }
+            try
+            {
+                if (!File.Exists(jsFile))
+                {
+                    File.WriteAllText(jsFile, Properties.Resources.DefaultJS);
+                }
+            }
+            catch { }
         }
 
         private byte[] GetLossyImageBytes(string file)
@@ -251,12 +252,13 @@ namespace cOCR
 ".Trim();
         }
 
-        private bool Json2Html(string imageFile, string jsonFile, string htmlFile, string errorFile, string jsonText)
+        private bool Json2Html(string imageFile, string jsonFile, string htmlFile, string cssFile, string jsFile, string errorFile, string jsonText)
         {
             try
             {
                 var html = RenderHtml(imageFile, jsonText);
                 File.WriteAllText(htmlFile, html);
+                PrepareHtmlResources(cssFile, jsFile);
                 return true;
             }
             catch (Exception ex)
@@ -273,7 +275,8 @@ namespace cOCR
         private string SerializeLanguageHints(IReadOnlyList<string> hints)
             => JsonConvert.SerializeObject(hints);
 
-        async private Task<Option<Task<dynamic>, R>> Image2Html(CLIOption.Result opt, string imageFile, string jsonFile, string htmlFile, string errorFile)
+        async private Task<Option<Task<dynamic>, R>> Image2Html(
+            CLIOption.Result opt, string imageFile, string jsonFile, string htmlFile, string cssFile, string jsFile, string errorFile)
         {
             var imageBytes = GetLossyImageBytes(imageFile);
             var languageHints = SerializeLanguageHints(opt.LanguageHints);
@@ -283,7 +286,7 @@ namespace cOCR
                 var jsonText = await x.Content.ReadAsStringAsync();
                 dynamic json = JsonConvert.DeserializeObject(jsonText);
                 File.WriteAllText(jsonFile, jsonText);
-                Json2Html(imageFile, jsonFile, htmlFile, errorFile, jsonText);
+                Json2Html(imageFile, jsonFile, htmlFile, cssFile, jsFile, errorFile, jsonText);
                 return json;
             });
         }

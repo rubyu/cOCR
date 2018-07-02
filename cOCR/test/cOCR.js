@@ -3,9 +3,10 @@ function appendDescriptionText(json_node, text) {
     var description = document.createElement("div");
     description.id = "description";
     var node = document.createElement("span");
-    node.innerHTML = text.replace("\r\n", "\n").replace("\n", "<br>");
+    // Bacause `responses[0].textAnnotations[0].description` contains line break as `\n`,
+    // it should be replaced by `<br>` here for using as html string.
+    node.innerHTML = text.replace(/\n/g, "<br>");
     description.appendChild(node);
-    
     json_node.parentNode.insertBefore(description, json_node);
 }
 
@@ -40,14 +41,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
     var description_text = json.responses[0].textAnnotations[0].description;
     appendDescriptionText(json_node, description_text);
     
+    // Prepare overlay layer for OCR result overlay feature.
     appendOverlayLayer(image_node);
     
+    // The real size of original image which applied for OCR.
     var image = image_node.querySelector("img");
     var iw = image.naturalWidth;
     var ih = image.naturalHeight;
     
     var annotations = json.responses[0].textAnnotations.slice(1);
     annotations.forEach(function(elm) {
+    	// Calculate relative position and size from which of absolute.
         var v = elm.boundingPoly.vertices;
         var x = Math.min(v[0].x, v[3].x);
         var y = Math.min(v[0].y, v[1].y);

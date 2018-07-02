@@ -72,8 +72,8 @@ namespace cOCR
                     {
                         if (IsImageExtension(args.FullPath))
                         {
-                            Console.WriteLine($"Created: {args.FullPath}");
-                            await Process(opt, args.FullPath);
+                            Console.WriteLine($"[Created] {args.FullPath}");
+                            TryProcess(opt, args.FullPath);
                         }
                     }
                 };
@@ -135,11 +135,36 @@ namespace cOCR
                 {
                     var fullPath = Path.GetFullPath(file);
                     Console.WriteLine($"[{index}] {fullPath}");
-                    var task = Process(opt, fullPath);
-                    task.Wait();
+                    TryProcess(opt, fullPath);
                     index += 1;
                 }
             }
+        }
+
+        private void TryProcess(CLIOption.Result opt, string imageFile, int maxRetries = 10)
+        {
+            for (var i = 0; i < maxRetries; i++)
+            {
+                Console.WriteLine($"[Process] {imageFile}");
+                try
+                {
+                    var task = Process(opt, imageFile);
+                    task.Wait();
+                    if (task.Result)
+                    {
+                        Console.WriteLine($"[OK]");
+                        return;
+                    }
+                    var waitSec = (int)Math.Pow(i + 1, 2);
+                    Console.WriteLine($"[NG]");
+                    Console.WriteLine($"Waiting {waitSec} sec...");
+                    Task.Delay(waitSec * 1000).Wait();
+                } finally
+                {
+                    GC.Collect();
+                }
+            }
+
         }
 
         async public Task<bool> Process(CLIOption.Result opt, string imageFile)
@@ -246,7 +271,6 @@ namespace cOCR
                 image.Save(stream, ImageFormat.Jpeg);
                 return stream.GetBuffer();
             }
-
         }
 
         private string RenderHtml(string imageFile, string json)
@@ -298,6 +322,9 @@ namespace cOCR
             var languageHints = SerializeLanguageHints(opt.LanguageHints);
 
             var r = await gcv.QueryGoogleCloudVisionAPI(opt.EntryPoint, languageHints, opt.GoogleAPIKey, imageBytes);
+
+            imageBytes = null;
+
             return r.Map(async (x) => {
                 var jsonText = await x.Content.ReadAsStringAsync();
                 dynamic json = JsonConvert.DeserializeObject(jsonText);

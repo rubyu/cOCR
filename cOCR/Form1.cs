@@ -226,12 +226,13 @@ namespace cOCR
             {
                 return File.ReadAllBytes(file);
             }
-            var image = Image.FromFile(file);
+            using (var image = Image.FromFile(file))
             using (var stream = new MemoryStream())
             {
                 image.Save(stream, ImageFormat.Jpeg);
                 return stream.GetBuffer();
             }
+
         }
 
         private string RenderHtml(string imageFile, string json)

@@ -73,7 +73,7 @@ namespace cOCR
             get; set;
         }
 
-        [CommandLine.Option("help",
+        [CommandLine.Option('h', "help",
             HelpText = "Display help message.")]
         public bool Help
         {
@@ -101,12 +101,15 @@ namespace cOCR
         {
             private CLIOption CLIOption { set; get; }
 
+            public string[] Args { internal set; get; }
+
             public bool ParseSuccess { internal set; get; }
 
             public string HelpMessage { internal set; get; }
 
-            public Result(CLIOption cliOption, bool parseSuccess, string helpMessage)
+            public Result(string[] args, CLIOption cliOption, bool parseSuccess, string helpMessage)
             {
+                this.Args = args;
                 this.CLIOption = cliOption;
                 this.ParseSuccess = parseSuccess;
                 this.HelpMessage = helpMessage;
@@ -154,7 +157,7 @@ namespace cOCR
 
             public bool Help
             {
-                get => CLIOption.Help;
+                get => CLIOption.Help || Args.Any(x => x == "--help");
             }
 
             public string VersionMessage
@@ -165,22 +168,21 @@ namespace cOCR
 
         public static Result Parse(string[] args)
         {
-            var cliOption = new CLIOption();
+            var opt = new CLIOption();
             var stringWriter = new StringWriter();
             var parser = new CommandLine.Parser(with => with.HelpWriter = stringWriter);
 
-            var tryParse = parser.ParseArguments(args, cliOption);
+            var tryParse = parser.ParseArguments(args, opt);
             stringWriter.Close();
             var helpMessage = stringWriter.ToString();
 
-            var result = new Result(cliOption, tryParse, helpMessage);
+            var result = new Result(args, opt, tryParse, helpMessage);
             return result;
         }
 
         public static Result ParseEnvironmentCommandLine()
         {
-            var args = Environment.GetCommandLineArgs().ToList().Skip(1).ToArray();
-            return Parse(args);
+            return Parse(Environment.GetCommandLineArgs().ToList().Skip(1).ToArray());
         }
     }
 }

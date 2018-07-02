@@ -24,23 +24,23 @@ namespace cOCR
                 string[] args = { "-d", @"..\..\test", "-k", "dummy" };
                 var cliOption = CLIOption.Parse(args);
 #else
-                var cliOption = CLIOption.ParseEnvironmentCommandLine();
+                var opt = CLIOption.ParseEnvironmentCommandLine();
 #endif
 
-                if (cliOption.Version)
+                if (opt.Version)
                 {
-                    Console.WriteLine(cliOption.VersionMessage);
+                    Console.WriteLine(opt.VersionMessage);
                     Environment.Exit(0);
                 }
-                else if (cliOption.Help)
+                else if (opt.Help)
                 {
-                    Console.WriteLine(cliOption.HelpMessage);
+                    Console.WriteLine(opt.HelpMessage);
                     Environment.Exit(0);
                 }
-                else if (!cliOption.ParseSuccess)
+                else if (!opt.ParseSuccess)
                 {
-                    Console.WriteLine(cliOption.HelpMessage);
-                    if (cliOption.Directory == null)
+                    Console.WriteLine(opt.HelpMessage);
+                    if (opt.Directory == null)
                     {
                         MessageBox.Show("-d TARGET_DIRECTORY is required.",
                             "Error",
@@ -48,7 +48,7 @@ namespace cOCR
                             MessageBoxIcon.Error);
                         Environment.Exit(1);
                     }
-                    else if (cliOption.GoogleAPIKey == null)
+                    else if (opt.GoogleAPIKey == null)
                     {
                         MessageBox.Show("-k YOUR_GOOGLE_API_KEY is required.",
                             "Error",
@@ -59,16 +59,16 @@ namespace cOCR
                 }
 
                 Console.WriteLine("----------");
-                Console.WriteLine($"CLIOption.Directory: {cliOption.Directory}");
-                Console.WriteLine($"CLIOption.GoogleAPIKey: {String.Join("", cliOption.GoogleAPIKey.Select(x => 'X'))}");
-                Console.WriteLine($"CLIOption.EntryPoint: {cliOption.EntryPoint}");
-                Console.WriteLine($"CLIOption.LanguageHints: {String.Join(", ", cliOption.LanguageHints)}");
-                Console.WriteLine($"CLIOption.Bulk: {cliOption.Bulk}");
-                Console.WriteLine($"CLIOption.Clipboard: {cliOption.Clipboard}");
-                Console.WriteLine($"CLIOption.ShowResult: {cliOption.ShowResult}");
+                Console.WriteLine($"CLIOption.Directory: {opt.Directory}");
+                Console.WriteLine($"CLIOption.GoogleAPIKey: {String.Join("", opt.GoogleAPIKey.Select(x => 'X'))}");
+                Console.WriteLine($"CLIOption.EntryPoint: {opt.EntryPoint}");
+                Console.WriteLine($"CLIOption.LanguageHints: {String.Join(", ", opt.LanguageHints)}");
+                Console.WriteLine($"CLIOption.Bulk: {opt.Bulk}");
+                Console.WriteLine($"CLIOption.Clipboard: {opt.Clipboard}");
+                Console.WriteLine($"CLIOption.ShowResult: {opt.ShowResult}");
                 Console.WriteLine("----------");
 
-                Application.Run(new Form1(cliOption));
+                Application.Run(new Form1(opt));
             }
             finally
             {

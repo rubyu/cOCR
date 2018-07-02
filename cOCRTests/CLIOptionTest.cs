@@ -143,13 +143,15 @@ namespace cOCRTests
                 var hints = "dummy";
                 string[] args = { "-l", hints };
                 var result = CLIOption.Parse(args);
-                Assert.AreEqual(result.LanguageHints, hints);
+                Assert.AreEqual(result.LanguageHints.Count, 1);
+                Assert.AreEqual(result.LanguageHints[0], hints);
             }
             {
                 var hints = "dummy";
                 string[] args = { "--language_hints", hints };
                 var result = CLIOption.Parse(args);
-                Assert.AreEqual(result.LanguageHints, hints);
+                Assert.AreEqual(result.LanguageHints.Count, 1);
+                Assert.AreEqual(result.LanguageHints[0], hints);
             }
         }
 
@@ -207,7 +209,7 @@ namespace cOCRTests
                 Assert.AreEqual(result.ShowResult, true);
             }
             {
-                string[] args = { "--show_reesult" };
+                string[] args = { "--show_result" };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ShowResult, true);
             }
@@ -240,6 +242,11 @@ namespace cOCRTests
                 string[] args = { };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.Help, false);
+            }
+            {
+                string[] args = { "-h" };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.Help, true);
             }
             {
                 string[] args = { "--help" };

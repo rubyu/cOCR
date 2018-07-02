@@ -7,6 +7,12 @@ The minimal required options are `-d` and `-k`, which means the target directory
 cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY"
 ```
 
+Or, the option can be given by the long name.
+
+```bat
+cocr --dir "PATH_TO_TARGET_DIRECTORY" --key "YOUR_GOOGLE_API_KEY"
+```
+
 ### Mode
 #### FileSystem Watcher Mode
 
@@ -46,7 +52,7 @@ cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY" -c
 ```
 
 
-### Watch a folder, execute OCR, and copy the result to clipboard.
+### Show Result
 
 When `-s` or `--show_result` option is given, **cOCR** will open OCR result html file by the application which associated to the file.
 

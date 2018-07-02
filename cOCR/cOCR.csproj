@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLIOption.cs" />
+    <Compile Include="Clipboard.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

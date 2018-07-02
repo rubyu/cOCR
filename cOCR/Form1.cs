@@ -180,12 +180,26 @@ namespace cOCR
                     {
                         InvokeProperly(() =>
                         {
-                            Clipboard.SetText(text);
+                            try
+                            {
+                                ClipboardHelper.SetText(text);
+                            }
+                            catch (Exception ex)
+                            {
+                                File.AppendAllText(errorFile, ex.ToString());
+                            }
                         });
                     }
                     if (!opt.Bulk && opt.ShowResult)
                     {
-                        System.Diagnostics.Process.Start(htmlFile);
+                        try
+                        {
+                            System.Diagnostics.Process.Start(htmlFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            File.AppendAllText(errorFile, ex.ToString());
+                        }
                     }
                 }, (x) =>
                 {

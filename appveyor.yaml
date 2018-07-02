@@ -1,0 +1,57 @@
+skip_tags: false
+skip_non_tags: false
+
+image: Visual Studio 2017
+
+version: 1.0.{build}
+
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "{version}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+platform:
+  - Any CPU
+
+environment:
+  AppxPackage: false
+  GenerateAppxPackageOnBuild: false
+
+configuration:
+  - Release
+
+init:
+  - git config --global core.autocrlf false
+
+before_build:
+  - cmd: |
+      nuget restore
+build:
+  project: cOCR.sln
+  parallel: false
+  verbosity: minimal
+
+after_test:
+  - ps: |
+      $tag      = $env:appveyor_repo_tag
+      $tagname  = $env:appveyor_repo_tag_name
+      $artifact = "cOCR.$env:appveyor_build_version.zip"
+      
+      7z a "$artifact" ".\cOCR\bin\Release\*"
+      Push-AppveyorArtifact "$artifact" -FileName "$artifact" -DeploymentName "zip.Latest"
+      if ($tag -eq "true")
+      {
+        Push-AppveyorArtifact "$artifact" -FileName "$artifact" -DeploymentName "zip.Tag"
+      }
+deploy:
+  - provider: GitHub
+    tag: $(appveyor_repo_tag_name)
+    release: $(appveyor_repo_tag_name).$(appveyor_build_number)
+    description: cOCR $(appveyor_repo_tag_name).$(appveyor_build_number)
+    auth_token:
+      secure: 28Y12pwenvvZC0jIt11rf0Fc0BfcP5WHPJiOxyGvvoGAmQtVYWS1AAj5/0XV71PA
+    artifact: zip.Tag
+    on:
+      appveyor_repo_tag: true

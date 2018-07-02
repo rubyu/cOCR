@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DEFA6124-3941-4346-8736-9C2B2F2D5BBA}</ProjectGuid>
+    <ProjectGuid>{326D829D-8698-4C80-B9A6-8EB7D5DDBD65}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>cOCRTests</RootNamespace>
@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cOCR\cOCR.csproj">
-      <Project>{9fd04382-9c6e-4107-a542-4efa0aed73b1}</Project>
+      <Project>{29fe20fc-f89a-4338-8b66-de448930b399}</Project>
       <Name>cOCR</Name>
     </ProjectReference>
   </ItemGroup>

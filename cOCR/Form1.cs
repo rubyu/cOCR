@@ -146,10 +146,11 @@ namespace cOCR
         {
             if (!IsImageExtension(imageFile)) return true;
 
+            var parent = Directory.GetParent(Path.GetFullPath(imageFile)).FullName;
             var jsonFile = imageFile + ".json";
             var htmlFile = imageFile + ".html";
-            var cssFile = imageFile + ".css";
-            var jsFile = imageFile + ".js";
+            var cssFile = Path.Combine(parent, "cOCR.css");
+            var jsFile = Path.Combine(parent, "cOCR.js");
             var errorFile = imageFile + "error.txt";
 
             if (File.Exists(jsonFile))

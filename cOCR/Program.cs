@@ -21,7 +21,7 @@ namespace cOCR
             {
                 WinAPI.Console.Console.AttachConsole();
 #if DEBUG
-                string[] args = { "-d", @"..\..\test", "-k", "dummy", "-b" };
+                string[] args = { "-d", @"..\..\test", "-k", "dummy" };
                 var cliOption = CLIOption.Parse(args);
 #else
                 var cliOption = CLIOption.ParseEnvironmentCommandLine();
@@ -60,7 +60,7 @@ namespace cOCR
 
                 Console.WriteLine("----------");
                 Console.WriteLine($"CLIOption.Directory: {cliOption.Directory}");
-                Console.WriteLine($"CLIOption.GoogleAPIKey: {cliOption.GoogleAPIKey.Select(x => 'X')}");
+                Console.WriteLine($"CLIOption.GoogleAPIKey: {String.Join("", cliOption.GoogleAPIKey.Select(x => 'X'))}");
                 Console.WriteLine($"CLIOption.EntryPoint: {cliOption.EntryPoint}");
                 Console.WriteLine($"CLIOption.LanguageHints: {String.Join(", ", cliOption.LanguageHints)}");
                 Console.WriteLine($"CLIOption.Bulk: {cliOption.Bulk}");
@@ -68,11 +68,7 @@ namespace cOCR
                 Console.WriteLine($"CLIOption.ShowResult: {cliOption.ShowResult}");
                 Console.WriteLine("----------");
 
-                var form = new Form1(cliOption);
-                if (!cliOption.Bulk)
-                {
-                    Application.Run(form);
-                }
+                Application.Run(new Form1(cliOption));
             }
             finally
             {

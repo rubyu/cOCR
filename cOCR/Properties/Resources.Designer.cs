@@ -59,5 +59,67 @@ namespace cOCR.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   (アイコン) に類似した型 System.Drawing.Icon のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Icon cOCRIcon {
+            get {
+                object obj = ResourceManager.GetObject("cOCRIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   div#description { 
+        ///    margin: 2em;
+        ///}
+        ///div#overlay {
+        ///    position: absolute;
+        ///    opacity: 0
+        ///}
+        ///div#overlay:hover {
+        ///    opacity: 1;
+        ///}
+        ///div#overlay .container {
+        ///    position: absolute;
+        ///    font-size: 1vh;
+        ///    display: flex;
+        ///    -webkit-justify-content: center;
+        ///    justify-content: center;
+        ///    -webkit-align-items: center;
+        ///    align-items: center;
+        ///    background-color: rgba(255, 0, 0, 0.20); 
+        ///}
+        ///div#json {
+        ///    display: none;
+        ///} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string DefaultCSS {
+            get {
+                return ResourceManager.GetString("DefaultCSS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   document.addEventListener(&quot;DOMContentLoaded&quot;, function(event) {
+        ///   
+        ///    var json_text = document.querySelector(&quot;#json&quot;).textContent;
+        ///    var json = JSON.parse(json_text);
+        ///    var annotations = json.responses[0].textAnnotations.slice(1);
+        ///    
+        ///    var overlay = document.createElement(&quot;div&quot;); 
+        ///    overlay.id = &quot;overlay&quot;;
+        ///    
+        ///    function appendOverlayText(x, y, w, h, text) {
+        ///        var container = document.createElement(&quot;div&quot;);
+        ///        container.className = &quot;container&quot;;
+        ///        container.style.le [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string DefaultJS {
+            get {
+                return ResourceManager.GetString("DefaultJS", resourceCulture);
+            }
+        }
     }
 }

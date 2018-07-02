@@ -30,20 +30,34 @@
         {
             this.components = new System.ComponentModel.Container();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
             // 
             // notifyIcon1
             // 
-            this.notifyIcon1.Text = "notifyIcon1";
-            this.notifyIcon1.Visible = true;
+            this.notifyIcon1.Icon = Properties.Resources.cOCRIcon;
+            this.notifyIcon1.Text = "cOCR is loading";
+            this.notifyIcon1.MouseUp += this.NotifyIcon1_MouseUp;
+            this.notifyIcon1.ContextMenuStrip = contextMenuStrip1;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 37);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenu1_Opening);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(278, 244);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "cOCR";
+            this.Text = "cOCR";
+            this.Icon = Properties.Resources.cOCRIcon;
+            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
+            this.ShowInTaskbar = false;
+            this.Opacity = 0;
             this.ResumeLayout(false);
 
         }
@@ -51,6 +65,7 @@
         #endregion
 
         private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }
 

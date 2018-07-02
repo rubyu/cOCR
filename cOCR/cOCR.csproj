@@ -110,5 +110,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cOCRIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cOCR.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cOCR.js" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

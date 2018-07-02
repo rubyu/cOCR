@@ -56,7 +56,7 @@ namespace cOCR
             var b64 = Convert.ToBase64String(imageBytes);
             var jsonRequest = ToJsonRequest(b64, languageHints);
 
-            Console.WriteLine($"EntryPoint: {entryPoint + apiKey.Select(x => 'X')}");
+            Console.WriteLine($"EntryPoint: {entryPoint + String.Join("", apiKey.Select(x => 'X'))}");
             Console.WriteLine($"RequestContent: {ToJsonRequest("... snip ...", languageHints)}");
 
             var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");

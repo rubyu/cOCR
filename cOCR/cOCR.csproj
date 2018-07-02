@@ -36,6 +36,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>cOCRIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
       <HintPath>packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
@@ -123,6 +126,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cOCR.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="cOCRIcon.ico" />
+    <None Include="test\cOCR.js" />
+    <None Include="test\cOCR.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

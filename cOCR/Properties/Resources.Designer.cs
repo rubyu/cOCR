@@ -74,26 +74,32 @@ namespace cOCR.Properties {
         ///   div#description { 
         ///    margin: 2em;
         ///}
+        ///
+        ///div#image,
+        ///div#image img,
+        ///div#overlay img {
+        ///    width: calc(100vw - 2em);
+        ///    user-drag: none; 
+        ///    user-select: none;
+        ///    -moz-user-select: none;
+        ///    -webkit-user-drag: none;
+        ///    -webkit-user-select: none;
+        ///    -ms-user-select: none;
+        ///}
         ///div#overlay {
         ///    position: absolute;
-        ///    opacity: 0
+        ///    opacity: 0;
         ///}
         ///div#overlay:hover {
         ///    opacity: 1;
         ///}
-        ///div#overlay .container {
+        ///div#overlay .block,
+        ///div#overlay .paragraph,
+        ///div#overlay .word {
         ///    position: absolute;
-        ///    font-size: 1vh;
-        ///    display: flex;
-        ///    -webkit-justify-content: center;
-        ///    justify-content: center;
-        ///    -webkit-align-items: center;
-        ///    align-items: center;
-        ///    background-color: rgba(255, 0, 0, 0.20); 
+        ///    float: left;
         ///}
-        ///div#json {
-        ///    display: none;
-        ///} に類似しているローカライズされた文字列を検索します。
+        ///div#over [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string DefaultCSS {
             get {
@@ -102,19 +108,19 @@ namespace cOCR.Properties {
         }
         
         /// <summary>
-        ///   document.addEventListener(&quot;DOMContentLoaded&quot;, function(event) {
         ///   
-        ///    var json_text = document.querySelector(&quot;#json&quot;).textContent;
-        ///    var json = JSON.parse(json_text);
-        ///    var annotations = json.responses[0].textAnnotations.slice(1);
-        ///    
-        ///    var overlay = document.createElement(&quot;div&quot;); 
-        ///    overlay.id = &quot;overlay&quot;;
-        ///    
-        ///    function appendOverlayText(x, y, w, h, text) {
-        ///        var container = document.createElement(&quot;div&quot;);
-        ///        container.className = &quot;container&quot;;
-        ///        container.style.le [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///function appendDescriptionText(jsonNode, text) {
+        ///    var description = document.createElement(&quot;div&quot;);
+        ///    description.id = &quot;description&quot;;
+        ///    var node = document.createElement(&quot;span&quot;);
+        ///    // Bacause `responses[0].textAnnotations[0].description` contains break lines as `\n`,
+        ///    // it should be replaced by `&lt;br&gt;` here for using as a html string.
+        ///    node.innerHTML = text.replace(/\n/g, &quot;&lt;br&gt;&quot;);
+        ///    description.appendChild(node);
+        ///    jsonNode.parentNode.insertBefore(description, jsonNode);
+        ///}
+        ///
+        ///fu [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string DefaultJS {
             get {

@@ -148,6 +148,8 @@ namespace cOCR
 
             var jsonFile = imageFile + ".json";
             var htmlFile = imageFile + ".html";
+            var cssFile = imageFile + ".css";
+            var jsFile = imageFile + ".js";
             var errorFile = imageFile + "error.txt";
 
             if (File.Exists(jsonFile))
@@ -157,8 +159,27 @@ namespace cOCR
                 var json = File.ReadAllText(jsonFile);
                 Json2Html(imageFile, jsonFile, htmlFile, errorFile, json);
 
-                if (File.Exists(htmlFile)) return true;
-
+                if (File.Exists(htmlFile))
+                {
+                    try
+                    {
+                        if (!File.Exists(cssFile))
+                        {
+                            File.WriteAllText(cssFile, Properties.Resources.DefaultCSS);
+                        }
+                    }
+                    catch { }
+                    try
+                    {
+                        if (!File.Exists(jsFile))
+                        {
+                            File.WriteAllText(jsFile, Properties.Resources.DefaultJS);
+                        }
+                    }
+                    catch { }
+                    return true;
+                }
+                
                 try
                 {
                     File.Delete(jsonFile);

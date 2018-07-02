@@ -37,6 +37,7 @@ namespace cOCR
         }
 
         [CommandLine.Option('l', "language_hints",
+            DefaultValue = "",
             HelpText = "Language hints. Multiple languages can be set by seperating by commas. e.g. --language_hints \"en, ja\" " +
             "Supported languages list: https://cloud.google.com/vision/docs/languages")]
         public string LanguageHints
@@ -52,8 +53,15 @@ namespace cOCR
         }
 
         [CommandLine.Option('c', "clipboard",
-            HelpText = "Copy OCR result to Clipboard.")]
+            HelpText = "Copy OCR result string to Clipboard.")]
         public bool Clipboard
+        {
+            get; set;
+        }
+
+        [CommandLine.Option('s', "show_result",
+            HelpText = "Show OCR result html file.")]
+        public bool ShowResult
         {
             get; set;
         }
@@ -61,6 +69,13 @@ namespace cOCR
         [CommandLine.Option('v', "version",
             HelpText = "Display product version.")]
         public bool Version
+        {
+            get; set;
+        }
+
+        [CommandLine.Option("help",
+            HelpText = "Display help message.")]
+        public bool Help
         {
             get; set;
         }
@@ -77,18 +92,7 @@ namespace cOCR
 
             help.AddPreOptionsLine("Usage:\r\n" +
                                    "  cocr.exe -d TARGET_DIR -k YOUR_GOOGLE_API_KEY " +
-                                   "  [-l LANGUAGE_HINTS] [-b] [-c] [--help]");
-            if (LastParserState?.Errors.Any() == true)
-            {
-                var errors = help.RenderParsingErrorsText(this, 2);
-                if (!string.IsNullOrEmpty(errors))
-                {
-                    help.AddPreOptionsLine("");
-                    help.AddPreOptionsLine("Error(s):");
-                    help.AddPreOptionsLine(errors);
-                    help.AddPreOptionsLine("");
-                }
-            }
+                                   "  [-l LANGUAGE_HINTS] [-b] [-c] [-s] [--help]");
             help.AddOptions(this);
             return help;
         }
@@ -110,45 +114,52 @@ namespace cOCR
 
             public string Directory
             {
-                get { return CLIOption.Directory; }
+                get => CLIOption.Directory;
             }
 
             public string GoogleAPIKey
             {
-                get { return CLIOption.GoogleAPIKey; }
+                get => CLIOption.GoogleAPIKey;
             }
 
             public string EntryPoint
             {
-                get { return CLIOption.EntryPoint; }
+                get => CLIOption.EntryPoint;
             }
 
-            public string LanguageHints
+            public IReadOnlyList<string> LanguageHints
             {
-                get { return CLIOption.LanguageHints; }
+                get => CLIOption.LanguageHints.Split(',').Select(x => x.Trim()).Where(x => x.Any()).ToList();
             }
 
             public bool Bulk
             {
-                get { return CLIOption.Bulk; }
+                get => CLIOption.Bulk;
             }
 
             public bool Clipboard
             {
-                get { return CLIOption.Clipboard; }
+                get => CLIOption.Clipboard;
+            }
+
+            public bool ShowResult
+            {
+                get => CLIOption.ShowResult;
             }
 
             public bool Version
             {
-                get { return CLIOption.Version; }
+                get => CLIOption.Version;
+            }
+
+            public bool Help
+            {
+                get => CLIOption.Help;
             }
 
             public string VersionMessage
             {
-                get
-                {
-                    return string.Format("{0} Version {1}", Application.ProductName, Application.ProductVersion);
-                }
+                get => string.Format("{0} Version {1}", Application.ProductName, Application.ProductVersion);
             }
         }
 

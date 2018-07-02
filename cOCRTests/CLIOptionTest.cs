@@ -26,28 +26,28 @@ namespace cOCRTests
                 Assert.AreEqual(result.ParseSuccess, false);
             }
             {
-                string dir = "hoge";
+                string dir = "dummy";
                 string[] args = { "-d", dir, "-k", "key" };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
                 Assert.AreEqual(result.Directory, dir);
             }
             {
-                string dir = "hoge";
+                string dir = "dummy";
                 string[] args = { "-d", dir, "--key", "key" };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
                 Assert.AreEqual(result.Directory, dir);
             }
             {
-                string dir = "hoge";
+                string dir = "dummy";
                 string[] args = { "--dir", dir, "-k", "key" };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
                 Assert.AreEqual(result.Directory, dir);
             }
             {
-                string dir = "hoge";
+                string dir = "dummy";
                 string[] args = { "--dir", dir, "--key", "key" };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
@@ -69,28 +69,28 @@ namespace cOCRTests
                 Assert.AreEqual(result.ParseSuccess, false);
             }
             {
-                string key = "hoge";
+                string key = "dummy";
                 string[] args = { "-d", "dir", "-k", key };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
                 Assert.AreEqual(result.GoogleAPIKey, key);
             }
             {
-                string key = "hoge";
+                string key = "dummy";
                 string[] args = { "--dir", "dir", "-k", key };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
                 Assert.AreEqual(result.GoogleAPIKey, key);
             }
             {
-                string key = "hoge";
+                string key = "dummy";
                 string[] args = { "-d", "dir", "--key", key };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
                 Assert.AreEqual(result.GoogleAPIKey, key);
             }
             {
-                string key = "hoge";
+                string key = "dummy";
                 string[] args = { "--dir", "dir", "--key", key };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.ParseSuccess, true);
@@ -112,13 +112,13 @@ namespace cOCRTests
                 Assert.AreEqual(result.EntryPoint, "https://vision.googleapis.com/v1p1beta1/images:annotate?key=");
             }
             {
-                var ep = "hoge";
+                var ep = "dummy";
                 string[] args = { "-e", ep };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.EntryPoint, ep);
             }
             {
-                var ep = "hoge";
+                var ep = "dummy";
                 string[] args = { "--entry_point", ep };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.EntryPoint, ep);
@@ -140,13 +140,13 @@ namespace cOCRTests
                 Assert.AreEqual(result.ParseSuccess, false);
             }
             {
-                var hints = "hoge";
+                var hints = "dummy";
                 string[] args = { "-l", hints };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.LanguageHints, hints);
             }
             {
-                var hints = "hoge";
+                var hints = "dummy";
                 string[] args = { "--language_hints", hints };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.LanguageHints, hints);
@@ -194,6 +194,26 @@ namespace cOCRTests
         }
 
         [TestMethod()]
+        public void ShowResultTest()
+        {
+            {
+                string[] args = { };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.ShowResult, false);
+            }
+            {
+                string[] args = { "-s" };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.ShowResult, true);
+            }
+            {
+                string[] args = { "--show_reesult" };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.ShowResult, true);
+            }
+        }
+
+        [TestMethod()]
         public void ParseVersionTest()
         {
             {
@@ -210,6 +230,21 @@ namespace cOCRTests
                 string[] args = { "--version" };
                 var result = CLIOption.Parse(args);
                 Assert.AreEqual(result.Version, true);
+            }
+        }
+
+        [TestMethod()]
+        public void ParseHelpTest()
+        {
+            {
+                string[] args = { };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.Help, false);
+            }
+            {
+                string[] args = { "--help" };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.Help, true);
             }
         }
     }

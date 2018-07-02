@@ -49,7 +49,7 @@ div#overlay .container {
     align-items: center;
     */
     display: inline;
-    background-color: rgba(255, 0, 0, 0.50); 
+    background-color: rgba(255, 128, 64, 0.70); 
 }
 div#overlay .container span {
     font-size: 80%;

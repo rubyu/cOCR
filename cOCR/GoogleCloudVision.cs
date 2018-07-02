@@ -12,17 +12,14 @@ namespace cOCR
 {
     using System.Net.Http;
     using Optional;
+    using System.IO;
 
     using R = System.Net.Http.HttpResponseMessage;
 
     public class GoogleCloudVision
-    {
-        async public Task<Option<R, R>> QueryGoogleCloudVisionAPI(byte[] imageBytes)
-        {
-            var API_KEY = "";
-            var uri = $"https://vision.googleapis.com/v1p1beta1/images:annotate?key={API_KEY}";
-            var b64 = Convert.ToBase64String(imageBytes);
-            var json = $@"
+    { 
+        private string ToJsonRequest(string b64, string languageHints) 
+        => $@"
 {{
     ""requests"": 
     [
@@ -36,20 +33,45 @@ namespace cOCR
                 {{
                     ""type"": ""DOCUMENT_TEXT_DETECTION""
                 }}
-            ]
+            ],
+            ""imageContext"": 
+            {{
+                ""languageHints"": {languageHints}
+            }}
         }}
     ]
-}}";
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+}}".Trim();
+
+
+    async public Task<Option<R, R>> QueryGoogleCloudVisionAPI(string entryPoint, string languageHints, string apiKey, byte[] imageBytes)
+        {
+#if DEBUG
+            var r = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(File.ReadAllText(@"..\..\test\SSDL.png.json"))
+            };
+            return Option.Some<R, R>(r);
+#else
+            var uri = entryPoint + apiKey;
+            var b64 = Convert.ToBase64String(imageBytes);
+            var jsonRequest = ToJsonRequest(b64, languageHints);
+
+            Console.WriteLine($"EntryPoint: {entryPoint + apiKey.Select(x => 'X')}");
+            Console.WriteLine($"RequestContent: {ToJsonRequest("... snip ...", languageHints)}");
+
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
             using (var client = new HttpClient())
             {
                 var r = await client.PostAsync(uri, content);
+                Console.WriteLine($"StatusCode: {r.StatusCode}");
                 if ((int)r.StatusCode == 200)
                 {
                     return Option.Some<R, R>(r);
                 }
                 return Option.None<R, R>(r);
             }
+#endif
         }
     }
 }

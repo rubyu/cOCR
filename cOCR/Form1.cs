@@ -12,9 +12,11 @@ namespace cOCR
 {
     using System.IO;
     using System.Drawing.Imaging;
+    using Optional;
     using System.Net;
     using Newtonsoft.Json;
 
+    using R = System.Net.Http.HttpResponseMessage;
 
     public partial class Form1 : Form
     {
@@ -29,45 +31,128 @@ namespace cOCR
                 return cp;
             }
         }
-
+        
         private readonly GoogleCloudVision gcv = new GoogleCloudVision();
-
-        public Form1()
+        private readonly FileSystemWatcher fsWatcher = new FileSystemWatcher();
+        
+        public Form1(CLIOption.Result opt)
         {
             InitializeComponent();
-
-            // todo arugment
-            // -d target directory
-            // -k google api key
-
-
-            // -w --watch enable_target_directory watching on startup
-            // -s --scan_existing_files // forcely ? should not to be implemented ?
-
-            // -e entry_point
-
-            // -l language
-
-            // -w watcher mode // default
-            // -b bulk converter mode
-
-            // -c clipboard instead of opening html file, copy OCR result to clipboard
-
-            // -m mode 
-
-            // cilck to open the latest result
-                // より、explorerで監視フォルダを開く、かな
-
-            Image2Html(@"..\..\test\SSDL.png");
-
-            //var file = @"..\..\test\SSDL.png";
-            //var json = File.ReadAllText(@"..\..\test\SSDL.png.json");
-            //var imageBytes = GetLossyImageBytes(file);
-            //var pdf = PDF.GenerateFromGCV(imageBytes, json);
-            //File.WriteAllBytes(@"..\..\test\SSDL.png.pdf", pdf);
-            //System.Diagnostics.Process.Start(@"..\..\test\SSDL.png.pdf");
+            
+            if (opt.Bulk)
+            {
+                Console.WriteLine("Mode: BulkProcess");
+                BulkProcess(opt);
+                Application.Exit();
+            }
+            else
+            {
+                Console.WriteLine(" Mode: FileSystemWatcher");
+                fsWatcher.Path = opt.Directory;
+                fsWatcher.Filter = "*";
+                fsWatcher.NotifyFilter = NotifyFilters.FileName;
+                fsWatcher.IncludeSubdirectories = true;
+                fsWatcher.Created += async (Object sender, FileSystemEventArgs args) => 
+                {
+                    if (args.ChangeType == WatcherChangeTypes.Created)
+                    {
+                        Console.WriteLine($"Created: {args.FullPath}");
+                        await Process(opt, args.FullPath);
+                    }
+                };
+                fsWatcher.EnableRaisingEvents = true;
+            }
         }
 
+        private void InvokeProperly(MethodInvoker invoker)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(invoker);
+            }
+            else
+            {
+                invoker.Invoke();
+            }
+        }
+
+        private bool IsImageExtension(string ext)
+            => ext == ".bmp" ||
+               ext == ".gif" ||
+               ext == ".png" ||
+               ext == ".jpeg" || ext == ".jpg" ||
+               ext == ".tiff" || ext == ".tif";
+
+        async private void BulkProcess(CLIOption.Result opt)
+        {
+            var files = Directory.EnumerateFiles(opt.Directory, "*", SearchOption.AllDirectories);
+            var index = 0;
+            foreach (var file in files)
+            {
+                var fullPath = Path.GetFullPath(file);
+                Console.WriteLine($"[{index}] {fullPath}");
+                if (await Process(opt, fullPath))
+                {
+                    await Task.Delay(1000);
+                }
+                index += 1;
+            }
+        }
+
+        async public Task<bool> Process(CLIOption.Result opt, string imageFile)
+        {
+            if (!IsImageExtension(Path.GetExtension(imageFile))) return true;
+
+            var jsonFile = imageFile + ".json";
+            var htmlFile = imageFile + ".html";
+            var errorFile = imageFile + "error.txt";
+
+            if (File.Exists(jsonFile))
+            {
+                if (File.Exists(htmlFile)) return true;
+
+                var json = File.ReadAllText(jsonFile);
+                Json2Html(imageFile, jsonFile, htmlFile, errorFile, json);
+
+                if (File.Exists(htmlFile)) return true;
+
+                try
+                {
+                    File.Delete(jsonFile);
+                }
+                catch { }
+            }
+
+            try
+            {
+                var r = await Image2Html(opt, imageFile, jsonFile, htmlFile, errorFile);
+                r.Match(async (x) =>
+                {
+                    var d = await x;
+                    string text = d.responses[0].fullTextAnnotation.text;
+                    if (opt.Clipboard)
+                    {
+                        InvokeProperly(() =>
+                        {
+                            Clipboard.SetText(text);
+                        });
+                    }
+                    if (opt.ShowResult)
+                    {
+                        System.Diagnostics.Process.Start(htmlFile);
+                    }
+                }, (x) =>
+                {
+                    File.AppendAllText(errorFile, x.ToString());
+                });
+                return r.HasValue;
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText(errorFile, ex.ToString());
+            }
+            return false;
+        }
 
         private byte[] GetLossyImageBytes(string file)
         {
@@ -83,9 +168,11 @@ namespace cOCR
             }
         }
 
-
-        private string RenderHtml(string file, string desc, string json)
+        private string RenderHtml(string imageFile, string json)
         {
+            var fileName = Path.GetFileName(imageFile);
+            var html_escaped_file = WebUtility.HtmlEncode(Path.GetFileName(fileName));
+            var html_escaped_json = WebUtility.HtmlEncode(json);
             return $@"
 <html>
 <head>
@@ -93,52 +180,48 @@ namespace cOCR
 </head>
 <body>
 <script src=""cOCR.js""></script>
-<div id=""image""><img src=""{WebUtility.HtmlEncode(Path.GetFileName(file))}""></div>
-<div id=""json"">{WebUtility.HtmlEncode(json).Replace("\r\n", "\n").Replace("\n", "<br>")}</div>
+<div id=""image""><img src=""{html_escaped_file}""></div>
+<div id=""json"">{html_escaped_json}</div>
 </body>
 </html>
 ".Trim();
         }
 
-        private void Json2Html(string file, string json)
+        private bool Json2Html(string imageFile, string jsonFile, string htmlFile, string errorFile, string jsonText)
         {
-            var dir = Directory.GetParent(file).FullName;
-            var filebase = Path.GetFileName(file);
-            var output_html = Path.Combine(dir, $"{filebase}.html");
-            var output_error = Path.Combine(dir, $"{filebase}.error.txt");
-
             try
             {
-                dynamic d = JsonConvert.DeserializeObject(json);
-                var desc = d.responses[0].textAnnotations[0].description.Value;
-                var html = RenderHtml(file, desc, json);
-                File.WriteAllText(output_html, html);
-                System.Diagnostics.Process.Start(output_html);
+                var html = RenderHtml(imageFile, jsonText);
+                File.WriteAllText(htmlFile, html);
+                return true;
             }
             catch (Exception ex)
             {
-                File.AppendAllText(output_error, ex.ToString());
+                try
+                {
+                    File.AppendAllText(errorFile, ex.ToString());
+                }
+                catch { }
             }
+            return false;
         }
 
-        async private void Image2Html(string file)
+        private string SerializeLanguageHints(IReadOnlyList<string> hints)
+            => JsonConvert.SerializeObject(hints);
+
+
+        async private Task<Option<Task<dynamic>, R>> Image2Html(CLIOption.Result opt, string imageFile, string jsonFile, string htmlFile, string errorFile)
         {
-            var dir = Directory.GetParent(file).FullName;
-            var filebase = Path.GetFileName(file);
-            var output_json = Path.Combine(dir, $"{filebase}.json");
-            var output_error = Path.Combine(dir, $"{filebase}.error.txt");
+            var imageBytes = GetLossyImageBytes(imageFile);
+            var languageHints = SerializeLanguageHints(opt.LanguageHints);
 
-            var imageBytes = GetLossyImageBytes(file);
-
-            var r = await gcv.QueryGoogleCloudVisionAPI(imageBytes);
-            r.Match(async (x) =>
-            {
-                var json = await x.Content.ReadAsStringAsync();
-                File.WriteAllText(output_json, json);
-                Json2Html(file, json);
-            }, (x) =>
-            {
-                File.AppendAllText(output_error, x.ToString());
+            var r = await gcv.QueryGoogleCloudVisionAPI(opt.EntryPoint, languageHints, opt.GoogleAPIKey, imageBytes);
+            return r.Map(async (x) => {
+                var jsonText = await x.Content.ReadAsStringAsync();
+                dynamic json = JsonConvert.DeserializeObject(jsonText);
+                File.WriteAllText(jsonFile, jsonText);
+                Json2Html(imageFile, jsonFile, htmlFile, errorFile, jsonText);
+                return json;
             });
         }
     }

@@ -6,6 +6,7 @@ div#image,
 div#image img,
 div#overlay img {
     width: calc(100vw - 2em);
+    user-select: none;
 }
 
 div#overlay {

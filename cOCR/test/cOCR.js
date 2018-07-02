@@ -3,8 +3,8 @@ function appendDescriptionText(json_node, text) {
     var description = document.createElement("div");
     description.id = "description";
     var node = document.createElement("span");
-    // Bacause `responses[0].textAnnotations[0].description` contains line break as `\n`,
-    // it should be replaced by `<br>` here for using as html string.
+    // Bacause `responses[0].textAnnotations[0].description` contains break lines as `\n`,
+    // it should be replaced by `<br>` here for using as a html string.
     node.innerHTML = text.replace(/\n/g, "<br>");
     description.appendChild(node);
     json_node.parentNode.insertBefore(description, json_node);
@@ -26,7 +26,7 @@ function appendOverlayText(x, y, w, h, text) {
     container.style.width = container.style.min_width = container.style.max_width = w;
     container.style.height = container.style.min_height = container.style.max_height = h;
     var node = document.createElement("span");
-    node.textContent = text + " ";
+    node.textContent = text;
     container.appendChild(node);
     overlay.appendChild(container);
 }
@@ -49,10 +49,40 @@ document.addEventListener("DOMContentLoaded", function(event) {
     var iw = image.naturalWidth;
     var ih = image.naturalHeight;
     
+    var annotation = json.responses[0].fullTextAnnotation;
+	annotation.pages.forEach(function(page) {
+		page.blocks.forEach(function(block) {
+			block.paragraphs.forEach(function(paragraph) {
+				paragraph.words.forEach(function(word) {
+					word.symbols.forEach(function(symbol) {
+    					// Calculate relative position and size from which of absolute.
+				        var v = symbol.boundingBox.vertices;
+				        var x = Math.min(v[0].x, v[3].x);
+				        var y = Math.min(v[0].y, v[1].y);
+				        var w = Math.max(v[1].x, v[2].x) - x;
+				        var h = Math.max(v[2].y, v[3].y) - y;
+				        var rx = (x / iw * 100) + "%";
+				        var ry = (y / ih * 100) + "%";
+				        var rw = (w / iw * 100) + "%";
+				        var rh = (h / ih * 100) + "%";
+				        // If symbol has line
+				        var text = symbol.text;
+				        if ("property" in symbol && "detectedBreak" in symbol.property) {
+				        	text = text + " ";
+				    	}
+				        appendOverlayText(rx, ry, rw, rh, text);
+					});
+				});
+			});
+		});
+	});
+    
+	/*
+	// Old format.
     var annotations = json.responses[0].textAnnotations.slice(1);
-    annotations.forEach(function(elm) {
+    annotations.forEach(function(annotation) {
     	// Calculate relative position and size from which of absolute.
-        var v = elm.boundingPoly.vertices;
+        var v = annotation.boundingPoly.vertices;
         var x = Math.min(v[0].x, v[3].x);
         var y = Math.min(v[0].y, v[1].y);
         var w = Math.max(v[1].x, v[2].x) - x;
@@ -61,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         var ry = (y / ih * 100) + "%";
         var rw = (w / iw * 100) + "%";
         var rh = (h / ih * 100) + "%";
-        appendOverlayText(rx, ry, rw, rh, elm.description);
+        appendOverlayText(rx, ry, rw, rh, annotation.description);
     });
+    */
 });

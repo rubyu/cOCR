@@ -66,6 +66,7 @@ namespace cOCR
                 Console.WriteLine($"CLIOption.Bulk: {opt.Bulk}");
                 Console.WriteLine($"CLIOption.Clipboard: {opt.Clipboard}");
                 Console.WriteLine($"CLIOption.ShowResult: {opt.ShowResult}");
+                Console.WriteLine($"CLIOption.Notice: {opt.Notice}");
                 Console.WriteLine("----------");
 
                 if (opt.Bulk)

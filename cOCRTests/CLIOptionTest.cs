@@ -216,6 +216,26 @@ namespace cOCRTests
         }
 
         [TestMethod()]
+        public void NoticeTest()
+        {
+            {
+                string[] args = { };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.Notice, false);
+            }
+            {
+                string[] args = { "-n" };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.Notice, true);
+            }
+            {
+                string[] args = { "--notice" };
+                var result = CLIOption.Parse(args);
+                Assert.AreEqual(result.Notice, true);
+            }
+        }
+
+        [TestMethod()]
         public void ParseVersionTest()
         {
             {

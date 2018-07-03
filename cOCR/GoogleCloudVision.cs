@@ -11,14 +11,11 @@ using System.Windows.Forms;
 namespace cOCR
 {
     using System.Net.Http;
-    using Optional;
     using System.IO;
 
-    using R = System.Net.Http.HttpResponseMessage;
-
-    public class GoogleCloudVision
-    { 
-        private string ToJsonRequest(string b64, string languageHints) 
+    public static class GoogleCloudVision
+    {
+        private static string ToJsonRequest(string b64, string languageHints) 
         => $@"
 {{
     ""requests"": 
@@ -43,14 +40,13 @@ namespace cOCR
 }}".Trim();
 
 
-    async public Task<Option<R, R>> QueryGoogleCloudVisionAPI(string entryPoint, string languageHints, string apiKey, byte[] imageBytes)
+    async public static Task<HttpResponseMessage> QueryGoogleCloudVisionAPI(HttpClient client, string entryPoint, string languageHints, string apiKey, byte[] imageBytes)
         {
 #if DEBUG
-            var r = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
             {
                 Content = new StringContent(File.ReadAllText(@"..\..\test\SSDL.png.json"))
             };
-            return Option.Some<R, R>(r);
 #else
             var uri = entryPoint + apiKey;
             var b64 = Convert.ToBase64String(imageBytes);
@@ -60,17 +56,7 @@ namespace cOCR
             Console.WriteLine($"RequestContent: {ToJsonRequest("... snip ...", languageHints)}");
 
             var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-
-            using (var client = new HttpClient())
-            {
-                var r = await client.PostAsync(uri, content);
-                Console.WriteLine($"StatusCode: {r.StatusCode}");
-                if ((int)r.StatusCode == 200)
-                {
-                    return Option.Some<R, R>(r);
-                }
-                return Option.None<R, R>(r);
-            }
+            return await client.PostAsync(uri, content);
 #endif
         }
     }

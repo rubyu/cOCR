@@ -66,6 +66,13 @@ namespace cOCR
             get; set;
         }
 
+        [CommandLine.Option('n', "notice",
+            HelpText = "Notice OCR result as a balloon message.")]
+        public bool Notice
+        {
+            get; set;
+        }
+
         [CommandLine.Option('v', "version",
             HelpText = "Display product version.")]
         public bool Version
@@ -148,6 +155,11 @@ namespace cOCR
             public bool ShowResult
             {
                 get => CLIOption.ShowResult;
+            }
+
+            public bool Notice
+            {
+                get => CLIOption.Notice;
             }
 
             public bool Version

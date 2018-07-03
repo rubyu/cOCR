@@ -68,7 +68,15 @@ namespace cOCR
                 Console.WriteLine($"CLIOption.ShowResult: {opt.ShowResult}");
                 Console.WriteLine("----------");
 
-                Application.Run(new Form1(opt));
+                if (opt.Bulk)
+                {
+                    Console.WriteLine("Mode: BulkConverter");
+                    Processor.BulkProcess(opt);
+                }
+                else
+                {
+                    Application.Run(new Form1(opt));
+                }
             }
             finally
             {

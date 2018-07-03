@@ -60,7 +60,6 @@
             this.ShowInTaskbar = false;
             this.Opacity = 0;
             this.ResumeLayout(false);
-
         }
 
         #endregion

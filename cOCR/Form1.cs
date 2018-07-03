@@ -56,7 +56,7 @@ namespace cOCR
                         Processor.Process(opt, args.FullPath, (json) => 
                         {
                             string text = json.responses[0].fullTextAnnotation.text;
-                            if (!opt.Bulk && opt.Clipboard)
+                            if (opt.Clipboard)
                             {
                                 InvokeProperly(() =>
                                 {
@@ -70,7 +70,7 @@ namespace cOCR
                                     }
                                 });
                             }
-                            if (!opt.Bulk && opt.ShowResult)
+                            if (opt.ShowResult)
                             {
                                 try
                                 {
@@ -81,6 +81,13 @@ namespace cOCR
                                     Console.Error.WriteLine(ex.ToString());
                                 }
                             }
+                            if (opt.Notice)
+                            {
+                                InvokeProperly(() =>
+                                {
+                                    ShowBalloon(text, "200 OK", ToolTipIcon.Info, 5);
+                                });
+                            }
                         });
                     }
                 }
@@ -88,9 +95,30 @@ namespace cOCR
             fsWatcher.EnableRaisingEvents = true;
         }
 
+        private void SetTaskTrayIconTitle(string title)
+        {
+            Console.WriteLine($"TaskTrayIconTitle: {title}");
+            notifyIcon1.Text = title;
+        }
+
+        private void ShowBalloon(string text, string title, ToolTipIcon icon, int timeout)
+        {
+            Console.WriteLine($"BalloonTipText: {text}");
+            Console.WriteLine($"BalloonTipTitle: {title}");
+            Console.WriteLine($"BalloonTipIcon: {icon}");
+            Console.WriteLine($"BalloonTimeout: {timeout}");
+            InvokeProperly(delegate ()
+            {
+                notifyIcon1.BalloonTipText = text;
+                notifyIcon1.BalloonTipTitle = title;
+                notifyIcon1.BalloonTipIcon = icon;
+                notifyIcon1.ShowBalloonTip(timeout);
+            });
+        }
+
         protected override void OnShown(EventArgs e)
         {
-            notifyIcon1.Text = $"oOCR - {cliOption.Directory}";
+            SetTaskTrayIconTitle($"oOCR - {cliOption.Directory}");
             RegisterNotifyIcon(notifyIcon1);
             base.OnShown(e);
         }
@@ -131,89 +159,65 @@ namespace cOCR
             }
         }
 
-        private void ClearContextMenu()
-        {
-            contextMenuStrip1.Items.Clear();
-        }
-
-        private void RegisterContextMenuItems0()
-        {
-            var item = new ToolStripMenuItem($"cOCR {Application.ProductVersion}");
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems1()
-        {
-            var item = new ToolStripSeparator();
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems2()
-        {
-            var item = new ToolStripMenuItem($"Dir: {cliOption.Directory}");
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems3()
-        {
-            var item = new ToolStripMenuItem($"EntryPoint: {cliOption.EntryPoint}");
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems4()
-        {
-            var item = new ToolStripSeparator();
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems5()
-        {
-            var item = new ToolStripMenuItem($"Copy to Clipboard");
-            item.Checked = cliOption.Clipboard;
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems6()
-        {
-            var item = new ToolStripMenuItem($"Show Result");
-            item.Checked = cliOption.ShowResult;
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems7()
-        {
-            var item = new ToolStripSeparator();
-            contextMenuStrip1.Items.Add(item);
-        }
-
-        private void RegisterContextMenuItems8()
-        {
-            var item = new ToolStripMenuItem("Exit");
-            item.Click += (_s, _e) =>
-            {
-                Close();
-                Application.ExitThread();
-            };
-            contextMenuStrip1.Items.Add(item);
-        }
+        private void ClearContextMenu() => contextMenuStrip1.Items.Clear();
 
         private void ResetContextMenu()
         {
             ClearContextMenu();
-            RegisterContextMenuItems0();
-            RegisterContextMenuItems1();
-            RegisterContextMenuItems2();
-            RegisterContextMenuItems3();
-            RegisterContextMenuItems4();
-            RegisterContextMenuItems5();
-            RegisterContextMenuItems6();
-            RegisterContextMenuItems7();
-            RegisterContextMenuItems8();
+            {
+                var item = new ToolStripMenuItem($"cOCR {Application.ProductVersion}");
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripSeparator();
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripMenuItem($"Dir: {cliOption.Directory}");
+                item.Click += (_s, _e) =>
+                {
+                    System.Diagnostics.Process.Start("cliOption.Directory");
+                };
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripMenuItem($"EntryPoint: {cliOption.EntryPoint}");
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripSeparator();
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripMenuItem($"Copy to Clipboard");
+                item.Checked = cliOption.Clipboard;
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripMenuItem($"Show Result");
+                item.Checked = cliOption.ShowResult;
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripMenuItem($"Notification");
+                item.Checked = cliOption.Notice;
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripSeparator();
+                contextMenuStrip1.Items.Add(item);
+            }
+            {
+                var item = new ToolStripMenuItem("Exit");
+                item.Click += (_s, _e) =>
+                {
+                    Close();
+                    Application.ExitThread();
+                };
+                contextMenuStrip1.Items.Add(item);
+            }
         }
 
-        private void ContextMenu1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            ResetContextMenu();
-        }
+        private void ContextMenu1_Opening(object sender, CancelEventArgs e) => ResetContextMenu();
     }
 }

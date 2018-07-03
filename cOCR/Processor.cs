@@ -65,6 +65,10 @@ namespace cOCR
                     Console.WriteLine($"Waiting {waitSec} sec...");
                     Task.Delay(waitSec * 1000).Wait();
                 }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex.ToString());
+                }
                 finally
                 {
                     GC.Collect();

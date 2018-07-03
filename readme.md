@@ -7,7 +7,7 @@ The minimal required options are `-d` and `-k`, which means the target directory
 cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY"
 ```
 
-Or, the options can be specified by the long names.
+Or, the options can be specified by the long names, `--dir` and `--key`.
 
 ```bat
 cocr --dir "PATH_TO_TARGET_DIRECTORY" --key "YOUR_GOOGLE_API_KEY"
@@ -17,6 +17,10 @@ cocr --dir "PATH_TO_TARGET_DIRECTORY" --key "YOUR_GOOGLE_API_KEY"
 #### FileSystem Watcher Mode
 
 Normally, **cOCR** watchs specified directory given by `-d` or `--dir` option, and if it finds a new image file, it will process the file immediately.
+
+```bat
+cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY"
+```
 
 #### Bulk Converter Mode
 
@@ -51,11 +55,18 @@ When `-c` or `--clipboard` option is given, **cOCR** will copy the result to cli
 cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY" -c
 ```
 
-
 ### Show Result
 
 When `-s` or `--show_result` option is given, **cOCR** will open OCR result html file by the application which associated to the file.
 
 ```bat
 cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY" -s
+```
+
+### Notification
+
+When `-n` or `--notice` option is given, **cOCR** will notice the success of OCR process.
+
+```bat
+cocr -d "PATH_TO_TARGET_DIRECTORY" -k "YOUR_GOOGLE_API_KEY" -n
 ```

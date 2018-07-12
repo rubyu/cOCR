@@ -40,7 +40,7 @@ namespace cOCR
                 throw new InvalidOperationException();
             }
 
-            Console.WriteLine(" Mode: FileSystemWatcher");
+            Console.WriteLine("Mode: FileSystemWatcher");
 
             fsWatcher.Path = opt.Directory;
             fsWatcher.Filter = "*";
@@ -118,7 +118,7 @@ namespace cOCR
 
         protected override void OnShown(EventArgs e)
         {
-            SetTaskTrayIconTitle($"oOCR - {cliOption.Directory}");
+            SetTaskTrayIconTitle($"cOCR - {cliOption.Directory}");
             RegisterNotifyIcon(notifyIcon1);
             base.OnShown(e);
         }

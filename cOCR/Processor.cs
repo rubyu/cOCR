@@ -60,10 +60,6 @@ namespace cOCR
                         Console.WriteLine($"[OK]");
                         return;
                     }
-                    var waitSec = (int)Math.Pow(i + 1, 2);
-                    Console.WriteLine($"[NG]");
-                    Console.WriteLine($"Waiting {waitSec} sec...");
-                    Task.Delay(waitSec * 1000).Wait();
                 }
                 catch (Exception ex)
                 {
@@ -73,6 +69,10 @@ namespace cOCR
                 {
                     GC.Collect();
                 }
+                var waitSec = (int)Math.Pow(i + 1, 2);
+                Console.WriteLine($"[NG]");
+                Console.WriteLine($"Waiting {waitSec} sec...");
+                Task.Delay(waitSec * 1000).Wait();
             }
         }
 

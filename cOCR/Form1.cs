@@ -85,7 +85,7 @@ namespace cOCR
                             {
                                 InvokeProperly(() =>
                                 {
-                                    ShowBalloon(text, "200 OK", ToolTipIcon.Info, 5);
+                                    ShowBalloon(text, ToolTipIcon.Info, 5);
                                 });
                             }
                         });
@@ -101,16 +101,15 @@ namespace cOCR
             notifyIcon1.Text = title;
         }
 
-        private void ShowBalloon(string text, string title, ToolTipIcon icon, int timeout)
+        private void ShowBalloon(string text, ToolTipIcon icon, int timeout)
         {
             Console.WriteLine($"BalloonTipText: {text}");
-            Console.WriteLine($"BalloonTipTitle: {title}");
             Console.WriteLine($"BalloonTipIcon: {icon}");
             Console.WriteLine($"BalloonTimeout: {timeout}");
             InvokeProperly(delegate ()
             {
                 notifyIcon1.BalloonTipText = text;
-                notifyIcon1.BalloonTipTitle = title;
+                notifyIcon1.BalloonTipTitle = "";
                 notifyIcon1.BalloonTipIcon = icon;
                 notifyIcon1.ShowBalloonTip(timeout);
             });
